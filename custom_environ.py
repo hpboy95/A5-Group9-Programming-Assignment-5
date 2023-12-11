@@ -1,3 +1,7 @@
+# Created By: Hezekiah Valdez
+# Date Created: 12/3/2023
+
+
 # fmt: off
 """
 Make your own custom environment
@@ -103,7 +107,7 @@ from gymnasium import spaces
 class GridWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, render_mode=None, size=5):
+    def __init__(self, render_mode="human", size=5):
         self.size = size  # The size of the square grid
         self.window_size = 512  # The size of the PyGame window
 
@@ -113,6 +117,8 @@ class GridWorldEnv(gym.Env):
             {
                 "agent": spaces.Box(0, size - 1, shape=(2,), dtype=int),
                 "target": spaces.Box(0, size - 1, shape=(2,), dtype=int),
+                "enemy": spaces.Box(0, size - 1, shape=(2,), dtype=int),
+                "enemy direction": spaces.Discrete(4),
             }
         )
 
@@ -130,8 +136,7 @@ class GridWorldEnv(gym.Env):
             2: np.array([-1, 0]),
             3: np.array([0, -1]),
         }
-
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        # assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
         """
@@ -166,7 +171,10 @@ class GridWorldEnv(gym.Env):
         return {
             "distance": np.linalg.norm(
                 self._agent_location - self._target_location, ord=1
-            )
+            ),
+            "enemy_distance": np.linalg.norm(
+                self._agent_location - self._enemy_location, ord=1
+            ),
         }
 
 # %%
@@ -208,7 +216,7 @@ class GridWorldEnv(gym.Env):
         # We will sample the target's location randomly until it does not coincide with the agent's location
         self._target_location = self._agent_location
         self._enemy_location = self._agent_location
-        self._enemy_direction = random.randint(3)
+        self._enemy_direction = random.randint(0,3)
 
         while np.array_equal(self._target_location, self._agent_location):
             self._target_location = self.np_random.integers(
@@ -245,20 +253,36 @@ class GridWorldEnv(gym.Env):
     def step(self, action):
         # Map the action (element of {0,1,2,3}) to the direction we walk in
         direction = self._action_to_direction[action]
+        enemy_direction = self._action_to_direction[self._enemy_direction]
         # We use `np.clip` to make sure we don't leave the grid
         self._agent_location = np.clip(
             self._agent_location + direction, 0, self.size - 1
         )
         self._enemy_location = np.clip(
-            self._enemy_location + self._enemy_direction, 0, self.size - 1
+            self._enemy_location + enemy_direction, 0, self.size - 1
         )
 
         #Check if the enemy is within lethal range
-        if
-
-        # An episode is done iff the agent has reached the target
-        terminated = np.array_equal(self._agent_location, self._target_location)
-        reward = 1 if terminated else -1  # Binary sparse rewards
+        directionPlus1 = self._enemy_location = np.clip(
+            self._enemy_location + enemy_direction, 0, self.size - 1
+        )
+        directionPlus2 = self._enemy_location = np.clip(
+            directionPlus1 + enemy_direction, 0, self.size - 1
+        )
+        self._enemy_direction = random.randint(0,3)
+        distance1 = np.linalg.norm(
+                self._agent_location - directionPlus1, ord=1
+        )
+        distance2 = np.linalg.norm(
+            self._agent_location - directionPlus2, ord=1
+        )
+        if distance1 == 0 or distance2 == 0:
+            terminated = True
+            reward = -100
+        else:
+            # An episode is done iff the agent has reached the target
+            terminated = np.array_equal(self._agent_location, self._target_location)
+            reward = 1 if terminated else -1  # Binary sparse rewards
         observation = self._get_obs()
         info = self._get_info()
 
@@ -309,6 +333,14 @@ class GridWorldEnv(gym.Env):
             canvas,
             (0, 0, 255),
             (self._agent_location + 0.5) * pix_square_size,
+            pix_square_size / 3,
+        )
+
+        # Now we draw the agent
+        pygame.draw.circle(
+            canvas,
+            (0, 255, 0),
+            (self._enemy_location + 0.5) * pix_square_size,
             pix_square_size / 3,
         )
 

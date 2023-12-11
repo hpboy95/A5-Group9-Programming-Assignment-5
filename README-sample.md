@@ -23,30 +23,36 @@ The congestion level is defined by the average speed simulated in the environmen
 ## Action Space
 The RL agent decide the price to enter the priority lane.
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
-| Num | Observation                                         | Min | Max |
-|-----|-----------------------------------------------------|-----|-----|
-| 0   | Price to enter the priority lane        | 0   | 10 |
+| Num | Directionm |
+|-----|------------|
+| 0   | Right      |
+| 1   | Up         |
+| 2   | Left       |
+| 3   | Down       |
 
 
 ## Rewards
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
 
-When the average speed of vehicles in the priority lane becomes less than 50 miles/hour, the agent receives a penalty of -10 * (the number of vehicles in the priority lane). Otherwise, it receives a positive reward based on the total revenue per vehicle in the priority lane.
+In this environment I set up the worst case to always be getting caught by an enemy agent. Getting caught by an enemy agent
+receives a reward of -100. Taking a step is going to achieve a reward of -1. Then reaching the goal gets a reward of 1.
 
 
 ## RL Algorithm 
-We use PPO. Briefly explain the category such as off-policy, policy gradient-based approach... Cite a paper.
-
-We are going to use the ray rllib implementation. Describe important parameters and configurations.
+I am going to compare our classical SARSA based approach to the machine learning REINFORCE approach that we did in PA4
 
 
 ## Starting State [if applicable]
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
-This is a continuing task.
+
+The map is randomly generated. There is a fixed square size for this iteration of grid world.
+The agent's starting position is random. The goal is position is randomly generated and adjusted if the position is the
+same as the agent. The enemy's position and starting direction is random.
 
 ## Episode End [if applicable]
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
-This is a continuing task.
+
+The episode ends if the playing agent is captured or the goal is reached.
 
 ## Results
 - Explain main results
