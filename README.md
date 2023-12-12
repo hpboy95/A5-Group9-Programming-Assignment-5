@@ -28,23 +28,55 @@ and then check if the player agent is within 2 tiles. If it is within 2 tiles th
 
 ## Action Space
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
-| Observation | Direction                        |
-|-------------|----------------------------------|
-| 0           | Price to enter the priority lane |
-| 0           | Price to enter the priority lane |
-| 0           | Price to enter the priority lane |
-| 0           | Price to enter the priority lane |
+| Observation | Direction |
+|-------------|-----------|
+| 0           | Right     |
+| 1           | Up        |
+| 2           | Left      |
+| 3           | Down      |
 
 ## Rewards
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
+For the game of infinity the worst case scenario is losing a unit, so I set that case to have a reward of -100
+Every move taken is worth -1. There is a reward of 1 if the end goal is reached successfully.
 
 ## RL Algorithm 
+I used the PPO algorithm obtained with Ray lib.
 
 ## Starting State [if applicable]
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
 
+The map is randomly generated. There is a fixed square size for this iteration of grid world.
+The agent's starting position is random. The goal is position is randomly generated and adjusted if the position is the
+same as the agent. The enemy's position and starting direction is random.
+
 ## Episode End [if applicable]
 <!-- See the Cart Pole Env example https://gymnasium.farama.org/environments/classic_control/cart_pole/ -->
 
+The episode ends if the playing agent is captured or the goal is reached.
+
 ## Results
+
+Please Refer to the "Results.png". In this graph the following is the legend:
+Green: The current number of positive rewards
+Red: The current number of negative rewards
+Orange: The average reward
+Blue:The truescale rewards
+
+As can be seen from this graph, the rate at which positive rewards acrues much faster than the negative rewards (aka the
+green line has a higher slope than the red line). Initially when I graphed the average this increase was not clearly apparent, 
+it seemed as though the average was stagnant through out. However, when I looked at the positive returns compared to the
+negative returns I can clearly see that PPO is improving over time. However, the average was clearly brought down by my 
+very low capture reward. 
+
+Over time the agent got better and better at avoiding the enemy agent (as is evidenced, by the low number of negative 
+spikes on the right hand side of the plot). However, since the enemy is a random agent with a random spawn it would be 
+much better if enemy spawn logic was much more strategic and game accurate. Furthermore, I would like to improve upon 
+this by adding additional enemies and obstacles to see how the agent would fare in that environment. Also I could add
+shooting logic to see how that would affect the aggressiveness of the agent.
+
+I believe that was able to grasp the basics of creating an openAI gym environment, as well as use the PPO algorithm we 
+learned towards the end of the class. Hopefully this last assignment with what I have done, and what could be done 
+demonstrates that. Thanks for teaching this semester  I appreciate what I have learned, and I hope to apply it to my 
+future classes and work ^.^!
 

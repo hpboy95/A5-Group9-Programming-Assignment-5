@@ -55,6 +55,8 @@ same as the agent. The enemy's position and starting direction is random.
 The episode ends if the playing agent is captured or the goal is reached.
 
 ## Results
+
+
 - Explain main results
 - Show the plot of increasing returns over time
 - Show a few extra plots to highlight the benefits of the RL approach (e.g. earned revenue compared with a random pricing method, the probability of the average speed of vehicles in the priority lane reaching less than 50 miles/hour)

@@ -2,22 +2,25 @@ import custom_environ
 import random
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.logger import pretty_print
+import matplotlib.pyplot as plt
 
-# test = custom_environ.GridWorldEnv()
-#
-# observation, info = test.reset()
-# print("Reset Obsercation:", observation)
-# print("INFO: ", info)
-# observation, reward, terminated, extra, info = test.step(random.randint(0,3))
-# print("First OBservation: ", observation)
-# count = 1
-# while not terminated:
-#     observation, reward, terminated, extra, info = test.step(random.randint(0, 3))
-#     count+=1
-#     print("step:", count)
-#     print("observation:", observation)
-#     print("reward:",reward)
 
+def plot(rewards, averages, positives, negatives, show_result=False):
+    print(len(rewards))
+    plt.figure(1)
+    if show_result:
+        plt.title('Result')
+    else:
+        plt.clf()
+        plt.title('Training...')
+    plt.xlabel('Episode')
+    plt.ylabel('Rewards')
+    plt.plot(rewards)
+    plt.plot(averages)
+    plt.plot(positives)
+    plt.plot(negatives)
+    plt.pause(0.001)  # pause a bit so that plots are updated
+    plt.savefig("ROFL")
 
 
 env = custom_environ.GridWorldEnv()
@@ -26,9 +29,32 @@ algo = (
     .rollouts(num_rollout_workers=1)
     .resources(num_gpus=0)
     .environment(env=custom_environ.GridWorldEnv, disable_env_checking=True)
+    .evaluation(evaluation_num_workers=1)
     .build()
 )
 
-for i in range(10):
+for i in range(100):
     result = algo.train()
-    print(pretty_print(result))
+    print(i)
+    # print(pretty_print(result))
+print(result["hist_stats"])
+rewards = result["hist_stats"]["episode_reward"]
+averages = []
+negatives = []
+positives = []
+sum = 0
+count = 0
+positive_count = 0
+negative_count = 0
+for i in rewards:
+    sum += i
+    count += 1
+    if i <= 0:
+        positive_count += 1
+    else:
+        negative_count += 1
+    averages.append(sum / count)
+    negatives.append(negative_count)
+    positives.append(positive_count)
+
+plot(result["hist_stats"]["episode_reward"], averages, positives, negatives, True)
